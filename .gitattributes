@@ -1,0 +1,4 @@
+# .editorconfig sets end_of_line = lf and CI verifies formatting byte-for-byte, so working trees
+# must be LF on every OS, including Windows checkouts, where git's default autocrlf=true would
+# otherwise convert every file to CRLF, churn a contributor's diff, and fail the format gate.
+* text=auto eol=lf

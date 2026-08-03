@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/ApiParity.Api/ApiParity.Api.csproj" />
+  <Project Path="tests/ApiParity.Tests/ApiParity.Tests.csproj" />
+  <Project Path="bench/ApiParity.Benchmarks/ApiParity.Benchmarks.csproj" />
+</Solution>

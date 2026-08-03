@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# One run per branch or pull request: a new push cancels the in-flight run for the same ref, which
+# would only be answering a question the newer commit has already made obsolete. Pushes to main are
+# exempt, so every commit on the default branch keeps a real pass/fail result rather than a
+# canceled one, which matters the first time someone bisects through this history.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  # Formatting is byte-identical on every OS (.gitattributes pins working trees to LF), so one
+  # runner is enough, and keeping it out of the matrix means a formatting-only failure reports
+  # once, in seconds, rather than three times behind three full compiles.
+  format:
+    name: Formatting gate
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore
+
+      # Matches the command in CONTRIBUTING.md.
+      - name: Format
+        run: dotnet format ApiParity.slnx --verify-no-changes --no-restore
+
+  test:
+    # This repository's claims are about framework behavior, which should not vary by operating
+    # system. The matrix turns "should not" into a tested statement: the same parity suite runs on
+    # Linux, Windows, and macOS. fail-fast is off so a failure on one OS still reports results for
+    # the other two. An OS-specific divergence is precisely the interesting outcome.
+    name: Parity suite (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      # The SDK version lives in global.json and only there, so CI cannot drift from what a
+      # contributor gets locally.
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          global-json-file: global.json
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore -c Release -warnaserror
+
+      - name: Test
+        run: dotnet test --no-build -c Release --verbosity normal
+
+# The benchmarks are deliberately NOT run here. Shared CI runners are noisy enough that a
+# microsecond-scale measurement would produce numbers not worth publishing. Run them locally:
+#   dotnet run -c Release --project bench/ApiParity.Benchmarks

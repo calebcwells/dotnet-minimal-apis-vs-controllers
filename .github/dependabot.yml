@@ -1,0 +1,36 @@
+version: 2
+
+updates:
+  # NuGet. This repository carries a hand-written forward pin (Microsoft.OpenApi in
+  # src/ApiParity.Api/ApiParity.Api.csproj) to clear a transitive advisory. Pins like that rot
+  # silently once the underlying package catches up, so something automated needs to be watching.
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      # One pull request per family rather than one per package. The ASP.NET Core and test
+      # packages move together on every servicing release, and a run of near-identical PRs is the
+      # fastest way to make a maintainer stop reading them.
+      aspnetcore:
+        patterns:
+          - "Microsoft.AspNetCore.*"
+          - "Microsoft.Extensions.*"
+          - "Microsoft.OpenApi*"
+      test:
+        patterns:
+          - "Microsoft.NET.Test.Sdk"
+          - "xunit*"
+          - "Shouldly"
+      benchmark:
+        patterns:
+          - "BenchmarkDotNet*"
+
+  # The workflow pins actions by commit SHA; Dependabot bumps the SHA and keeps the trailing
+  # version comment in step.
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

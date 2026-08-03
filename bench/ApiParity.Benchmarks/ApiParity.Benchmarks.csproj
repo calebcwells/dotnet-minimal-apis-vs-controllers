@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+    <!-- BenchmarkDotNet requires an optimised build and refuses to run under Debug, so this project
+         must be launched with an explicit `-c Release`. That cannot be defaulted from here: the SDK
+         sets Configuration to Debug before this PropertyGroup is evaluated, so a conditional default
+         would never apply. -->
+    <StartupObject>ApiParity.Benchmarks.BenchmarkEntryPoint</StartupObject>
+  </PropertyGroup>
+
+  <!-- Versions live in Directory.Packages.props (central package management). -->
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ApiParity.Api\ApiParity.Api.csproj" />
+  </ItemGroup>
+
+</Project>

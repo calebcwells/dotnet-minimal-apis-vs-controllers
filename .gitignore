@@ -1,0 +1,28 @@
+## .NET build output
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+
+## BenchmarkDotNet output — regenerate with `dotnet run -c Release --project bench/ApiParity.Benchmarks`
+BenchmarkDotNet.Artifacts/
+
+## User/IDE-specific files
+*.user
+*.suo
+.vs/
+.vscode/
+.idea/
+*.DotSettings.user
+
+## Test results
+[Tt]est[Rr]esult*/
+*.trx
+*.coverage
+coverage*.json
+coverage*.xml
+
+## OS noise
+.DS_Store
+Thumbs.db
