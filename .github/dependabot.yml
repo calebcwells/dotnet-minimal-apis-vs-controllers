@@ -9,6 +9,14 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    ignore:
+      # Microsoft.OpenApi 3.x is a breaking major. Microsoft.AspNetCore.OpenApi and its source
+      # generator are built against the 2.x API, so taking the bump fails compilation in CI.
+      # Ignore majors until Microsoft.AspNetCore.OpenApi itself moves to 3.x, at which point the
+      # forward pin (see Directory.Packages.props) can be deleted entirely. 2.x patch and security
+      # updates still flow, which is what the pin exists for.
+      - dependency-name: "Microsoft.OpenApi"
+        update-types: ["version-update:semver-major"]
     groups:
       # One pull request per family rather than one per package. The ASP.NET Core and test
       # packages move together on every servicing release, and a run of near-identical PRs is the
